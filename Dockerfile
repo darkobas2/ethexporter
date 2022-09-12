@@ -1,16 +1,18 @@
 FROM golang
 
 ADD . /go/src/github.com/hunterlong/ethexporter
-RUN cd /go/src/github.com/hunterlong/ethexporter && go get
-RUN go install github.com/hunterlong/ethexporter
+WORKDIR /go/src/github.com/hunterlong/ethexporter
+RUN go mod tidy
+RUN go install
 
-ENV GETH https://mainnet.infura.io
-ENV PORT 9015
+ENV GETH $GETH
+ENV PORT $PORT
+ENV ADDRESSES $ADDRESSES
 
 RUN mkdir /app
 WORKDIR /app
-ADD addresses.txt /app
+#ADD addresses.txt /app
 
-EXPOSE 9015
+EXPOSE ${PORT}
 
-ENTRYPOINT /go/bin/ethexporter
+CMD ["/bin/bash", "-c", "echo $ADDRESSES > /app/addresses.txt && /go/bin/ethexporter"]
